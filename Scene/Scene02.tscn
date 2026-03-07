@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://cbsl2f1env6ox"]
+
+[ext_resource type="Script" uid="uid://yybljtbkcebq" path="res://Scripts/SceneLearn.cs" id="1_4oghv"]
+[ext_resource type="Texture2D" uid="uid://bmer6nw52jeuk" path="res://icon.svg" id="1_yhaw6"]
+
+[node name="Scene02" type="Node2D" unique_id=1264319056]
+script = ExtResource("1_4oghv")
+
+[node name="TextureRect2" type="TextureRect" parent="." unique_id=721703278]
+offset_left = 133.0
+offset_right = 261.0
+offset_bottom = 128.0
+texture = ExtResource("1_yhaw6")
+
+[node name="Node2D" type="Node2D" parent="." unique_id=1036318518]
+
+[node name="Input" type="Node2D" parent="." unique_id=2055194947]
+
+[node name="NodeLearn" type="Node2D" parent="." unique_id=91268896]
+
+[node name="TextureRect" type="TextureRect" parent="NodeLearn" unique_id=1223296773]
+offset_right = 128.0
+offset_bottom = 128.0
+texture = ExtResource("1_yhaw6")
