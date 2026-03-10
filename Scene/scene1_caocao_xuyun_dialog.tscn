@@ -1,0 +1,118 @@
+[gd_scene load_steps=11 format=3 uid="uid://c4e8lugudl3f5"]
+
+[ext_resource type="Script" uid="uid://x37n1g20lk65" path="res://Scene/Scene1CaocaoXuyunDialog.cs" id="1_scene_script"]
+[ext_resource type="Script" uid="uid://dklb272cjmyyy" path="res://Scripts/Dialogue/SModelActor.cs" id="2_actor_script"]
+[ext_resource type="PackedScene" path="res://Scene/DialoguePlayer.tscn" id="3_dialogue_scene"]
+[ext_resource type="Texture2D" uid="uid://cktfhanrm28x4" path="res://Assets/background/scene1_caocao_xuyun_dialog.png" id="4_background"]
+[ext_resource type="Script" uid="uid://bror2vx3xldjr" path="res://Scripts/Dialogue/SheetEffectPlayer.cs" id="5_effect_script"]
+[ext_resource type="Texture2D" uid="uid://dafl44dda52rh" path="res://Assets/Characters/xuyun/xuyun_teleport_chroma.png" id="6_teleport_texture"]
+[ext_resource type="AudioStream" uid="uid://bavvxxwjjoovr" path="res://Assets/voices/dialogue/character_appear_magic.wav" id="7_appear_sfx"]
+[ext_resource type="AudioStream" uid="uid://l3eaf8hocsah" path="res://Assets/voices/dialogue/character_walk_step.wav" id="8_walk_sfx"]
+[ext_resource type="AudioStream" path="res://Assets/voices/dialogue/character_sword_swing.ogg" id="10_attack_sfx"]
+[ext_resource type="Shader" path="res://Shaders/RetroDialogueScene.gdshader" id="9_retro_shader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_retro"]
+shader = ExtResource("9_retro_shader")
+shader_parameter/sepia_strength = 0.34
+shader_parameter/grain_strength = 0.042
+shader_parameter/vignette_strength = 0.26
+shader_parameter/scanline_strength = 0.024
+shader_parameter/posterize_mix = 0.16
+shader_parameter/posterize_steps = 26.0
+shader_parameter/aberration = 0.0012
+shader_parameter/warm_tint = Vector3(1.05, 1, 0.93)
+
+[node name="scene1_caocao_xuyun_dialog" type="Node2D" unique_id=1328009525]
+script = ExtResource("1_scene_script")
+
+[node name="Background" type="Sprite2D" parent="." unique_id=68792885]
+position = Vector2(800, 450)
+scale = Vector2(0.4494382, 0.45)
+texture = ExtResource("4_background")
+
+[node name="GroundShadow" type="ColorRect" parent="." unique_id=1752679881]
+visible = false
+offset_left = 230.0
+offset_top = 565.0
+offset_right = 1050.0
+offset_bottom = 650.0
+color = Color(0, 0, 0, 0.16)
+
+[node name="RevealCamera" type="Camera2D" parent="."]
+enabled = true
+position = Vector2(800, 450)
+
+[node name="IntroCaocaoMarker" type="Marker2D" parent="." unique_id=837275578]
+position = Vector2(762.5, 525)
+
+[node name="IntroXuyunMarker" type="Marker2D" parent="." unique_id=1051665313]
+position = Vector2(827.5, 602.5)
+
+[node name="IntroTeleportEffectMarker" type="Marker2D" parent="." unique_id=1110146216]
+position = Vector2(827.5, 592.5)
+
+[node name="IntroGroundShadowMarker" type="Marker2D" parent="." unique_id=1371754530]
+position = Vector2(617.5, 650)
+
+[node name="CaocaoActor" type="Sprite2D" parent="." unique_id=1475125799]
+texture_filter = 1
+position = Vector2(762.5, 525)
+scale = Vector2(0.46, 0.46)
+script = ExtResource("2_actor_script")
+
+[node name="XuyunActor" type="Sprite2D" parent="." unique_id=975014171]
+texture_filter = 1
+position = Vector2(827.5, 602.5)
+scale = Vector2(0.46, 0.46)
+script = ExtResource("2_actor_script")
+
+[node name="XuyunTeleportEffect" type="Sprite2D" parent="." unique_id=1858404171]
+visible = false
+texture_filter = 1
+position = Vector2(827.5, 592.5)
+scale = Vector2(0.62, 0.62)
+texture = ExtResource("6_teleport_texture")
+script = ExtResource("5_effect_script")
+
+[node name="EmoteEffect" type="Sprite2D" parent="." unique_id=1840041731]
+visible = false
+texture_filter = 1
+position = Vector2(610, 360)
+scale = Vector2(0.40, 0.40)
+script = ExtResource("5_effect_script")
+
+[node name="BgmPlayer" type="AudioStreamPlayer" parent="." unique_id=1186797982]
+
+[node name="DialogueAppearSfx" type="AudioStreamPlayer" parent="." unique_id=483856366]
+stream = ExtResource("7_appear_sfx")
+volume_db = -6.0
+
+[node name="DialogueWalkSfx" type="AudioStreamPlayer" parent="." unique_id=1322907604]
+stream = ExtResource("8_walk_sfx")
+volume_db = -10.0
+
+[node name="DialogueAttackSfx" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("10_attack_sfx")
+volume_db = -7.0
+
+[node name="RetroEffectLayer" type="CanvasLayer" parent="."]
+layer = 1
+
+[node name="RetroOverlay" type="ColorRect" parent="RetroEffectLayer"]
+material = SubResource("ShaderMaterial_retro")
+offset_right = 1600.0
+offset_bottom = 900.0
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+
+[node name="SceneRevealLayer" type="CanvasLayer" parent="."]
+layer = 30
+
+[node name="Overlay" type="ColorRect" parent="SceneRevealLayer"]
+offset_right = 1600.0
+offset_bottom = 900.0
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+[node name="DialoguePlayer" parent="." unique_id=191201060 instance=ExtResource("3_dialogue_scene")]
+
+

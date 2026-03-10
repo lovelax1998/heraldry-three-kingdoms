@@ -1,0 +1,48 @@
+[gd_scene format=3 uid="uid://dduw5j0odapnr"]
+
+[ext_resource type="Texture2D" uid="uid://bn6cply3f16uy" path="res://Assets/background/taoyuan.jpg" id="1_6s82b"]
+[ext_resource type="Script" uid="uid://dh3miqw3q1l6v" path="res://Scene/Scene2Taoyuan.cs" id="1_e8eyn"]
+[ext_resource type="Script" uid="uid://dklb272cjmyyy" path="res://Scripts/Dialogue/SModelActor.cs" id="4_l05u4"]
+
+[node name="Control" type="Control" unique_id=826815931]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_e8eyn")
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1171760194]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_6s82b")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="WorldRoot" type="Node2D" parent="." unique_id=1006461093]
+
+[node name="LiubeiActor" type="Sprite2D" parent="WorldRoot" unique_id=763612364]
+texture_filter = 1
+script = ExtResource("4_l05u4")
+
+[node name="GuanyuActor" type="Sprite2D" parent="WorldRoot" unique_id=715302784]
+texture_filter = 1
+script = ExtResource("4_l05u4")
+
+[node name="ZhangfeiActor" type="Sprite2D" parent="WorldRoot" unique_id=1980975327]
+texture_filter = 1
+script = ExtResource("4_l05u4")
+
+[node name="LiubeiMarker" type="Marker2D" parent="WorldRoot" unique_id=1551235929]
+position = Vector2(939, 374)
+
+[node name="GuanyuMarker" type="Marker2D" parent="WorldRoot" unique_id=1548852557]
+position = Vector2(746, 638)
+
+[node name="ZhangfeiMarker" type="Marker2D" parent="WorldRoot" unique_id=216749160]
+position = Vector2(575, 459)

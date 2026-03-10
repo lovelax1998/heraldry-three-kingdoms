@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://6ilwu8h586ur"
+path="res://.godot/imported/caocao’s ambition.mp3-9fde26d4f1f6992e44956c1961b82314.mp3str"
+
+[deps]
+
+source_file="res://Music/caocao’s ambition.mp3"
+dest_files=["res://.godot/imported/caocao’s ambition.mp3-9fde26d4f1f6992e44956c1961b82314.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

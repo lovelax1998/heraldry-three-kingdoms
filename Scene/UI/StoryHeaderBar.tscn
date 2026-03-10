@@ -1,0 +1,28 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/StoryHeaderBar.cs" id="1_story_header_script"]
+
+[node name="StoryHeaderBar" type="CanvasLayer"]
+layer = 8
+script = ExtResource("1_story_header_script")
+
+[node name="HeaderPanel" type="Panel" parent="."]
+offset_right = 1600.0
+offset_bottom = 56.0
+mouse_filter = 2
+
+[node name="ChapterLabel" type="Label" parent="HeaderPanel"]
+offset_left = 22.0
+offset_top = 8.0
+offset_right = 620.0
+offset_bottom = 44.0
+mouse_filter = 2
+text = ""
+
+[node name="LocationLabel" type="Label" parent="HeaderPanel"]
+offset_left = 660.0
+offset_top = 8.0
+offset_right = 1252.0
+offset_bottom = 44.0
+mouse_filter = 2
+text = ""

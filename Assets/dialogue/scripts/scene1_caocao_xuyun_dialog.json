@@ -1,0 +1,236 @@
+{
+  "scene_id": "scene1_caocao_xuyun_dialog",
+  "background": "res://Assets/background/scene1_caocao_xuyun_dialog.png",
+  "bgm": "res://Music/caocao’s ambition.mp3",
+  "dialog_box": "",
+  "intro_stand_duration": 2,
+  "intro_pace_steps": 2,
+  "intro_pause_after_pacing": 0.18,
+  "chapter_number": "第一章",
+  "chapter_title": "桃园四结义",
+  "location": "许都郊外",
+  "environment": "白日",
+  "cast": {
+    "caocao": {
+      "display_name": "曹操"
+    },
+    "xuyun": {
+      "display_name": "许芸"
+    }
+  },
+  "lines": [
+    {
+      "speaker": "caocao",
+      "expression": "normal",
+      "text": "这许都人烟鼎沸，看似太平，底下却处处都是将倾未倾的裂纹。",
+      "auto_advance": true,
+      "auto_advance_delay": 0.62,
+      "exit_actions": [
+        {
+          "type": "face",
+          "target": "caocao",
+          "facing": "front",
+          "duration": 0.08
+        }
+      ]
+    },
+    {
+      "speaker": "caocao",
+      "expression": "normal",
+      "text": "若满朝公卿都只顾惜羽毛，总得有人先去背骂名。只要还能替百姓抢出一条活路，曹操便先伸这只手。",
+      "auto_advance": true,
+      "auto_advance_delay": 0.72,
+      "exit_actions": [
+        {
+          "type": "wait",
+          "target": "caocao",
+          "duration": 0.18
+        },
+        {
+          "type": "appear",
+          "target": "xuyun",
+          "facing": "left"
+        },
+        {
+          "type": "wait",
+          "target": "xuyun",
+          "duration": 0.18
+        }
+      ]
+    },
+    {
+      "speaker": "xuyun",
+      "expression": "normal",
+      "text": "白日正盛，将军却独自立在城郊高处看着许都人烟。看来，你心里装着的，并不只是眼前这一城。",
+      "exit_actions": []
+    },
+    {
+      "speaker": "caocao",
+      "expression": "normal",
+      "text": "阁下是？"
+    },
+    {
+      "speaker": "xuyun",
+      "expression": "normal",
+      "text": "姓名不过尘世一纸名录。若将军一定要问，便当我是个“丹羽过客”吧。我来，只想问将军一句：若真要在这乱世里做事，你究竟想把众人带到哪里去？",
+      "exit_actions": [
+        {
+          "type": "attack",
+          "target": "caocao",
+          "facing": "right",
+          "duration": 0.9,
+          "fps": 5
+        },
+        {
+          "type": "wait",
+          "target": "caocao",
+          "duration": 0.16
+        },
+        {
+          "type": "attack",
+          "target": "caocao",
+          "facing": "right",
+          "duration": 0.9,
+          "fps": 5
+        },
+        {
+          "type": "face",
+          "target": "caocao",
+          "facing": "front",
+          "duration": 0.04
+        }
+      ]
+    },
+    {
+      "speaker": "caocao",
+      "expression": "normal",
+      "text": "若朝廷尚可扶，我便扶朝廷；若百姓尚可安，我便安百姓。可若纲纪尽坏、群雄各挟私心，那就该有人先把这盘散沙重新攥成一个天下。"
+    },
+    {
+      "speaker": "xuyun",
+      "expression": "normal",
+      "text": "所以你在意的，不是自己像不像君子，而是最后能不能成事。旁人求善名，你求有用。"
+    },
+    {
+      "speaker": "caocao",
+      "expression": "angry",
+      "text": "乱世里，做不成事，比做个坏人更可怕。若为了几句清议，便坐看州郡残破、百姓流离，那样的好名声，曹某不要。"
+    },
+    {
+      "speaker": "xuyun",
+      "expression": "normal",
+      "text": "可一个人若把“天下”二字握得太紧，久而久之，也会把众生看成棋盘上的轻重缓急。到那时，你救的是苍生，还是你心里那个必须赢的自己？"
+    },
+    {
+      "speaker": "caocao",
+      "expression": "happy",
+      "text": "姑娘这话，刺得很准。可曹某从不敢自比圣贤。我只知道，这世上若人人都怕担恶名，便永远不会有人出来收拾残局。"
+    },
+    {
+      "speaker": "xuyun",
+      "expression": "normal",
+      "text": "原来如此。你确实有扶世的胆魄，也有吞世的锋芒。你要的不只是止乱，你要的是由你来定义何为秩序。"
+    },
+    {
+      "speaker": "caocao",
+      "expression": "normal",
+      "text": "既然姑娘看得这样明白，不妨把那句评语留着。等来日天下当真有一线清平，你再回头看今日曹操——究竟是能臣，还是奸雄。",
+      "exit_actions": [
+        {
+          "type": "move",
+          "target": "xuyun",
+          "offset_x": 96,
+          "offset_y": 0,
+          "duration": 0.45,
+          "facing": "right"
+        }
+      ]
+    },
+    {
+      "speaker": "xuyun",
+      "expression": "normal",
+      "text": "（他太清醒，也太相信自己了。朱雀纹章，不能交给这样的人。）"
+    },
+    {
+      "speaker": "xuyun",
+      "expression": "normal",
+      "text": "（……我还是去找一个把黎民百姓放在王朝霸业之上的人吧。）",
+      "exit_actions": [
+        {
+          "type": "wait",
+          "target": "xuyun",
+          "duration": 1
+        },
+        {
+          "type": "disappear",
+          "target": "xuyun",
+          "duration": 0,
+          "resource": "res://Assets/Characters/xuyun/xuyun_teleport_disappear.png"
+        },
+        {
+          "type": "emote",
+          "target": "caocao",
+          "resource": "res://Assets/Characters/general/question_chroma.png",
+          "offset_x": 0,
+          "offset_y": -58,
+          "scale": 0.4,
+          "start_frame": 0,
+          "end_frame": 12,
+          "fps": 24
+        }
+      ]
+    },
+    {
+      "speaker": "caocao",
+      "expression": "normal",
+      "text": "她是……？"
+    },
+    {
+      "speaker": "caocao",
+      "expression": "normal",
+      "text": "……乱世之奸雄么？若真能换来山河归整、百姓免于流离，这四个字，我曹操受了。",
+      "exit_actions": [
+        {
+          "type": "wait",
+          "target": "caocao",
+          "duration": 0.22
+        },
+        {
+          "type": "emote",
+          "target": "caocao",
+          "resource": "res://Assets/Characters/general/ellipsis_chroma.png",
+          "offset_x": 0,
+          "offset_y": -58,
+          "scale": 0.4,
+          "start_frame": 0,
+          "end_frame": 12,
+          "fps": 18,
+          "duration": 0.72
+        }
+      ]
+    },
+    {
+      "speaker": "caocao",
+      "expression": "normal",
+      "text": "时候不早了，该回去了。",
+      "exit_actions": [
+        {
+          "type": "move",
+          "target": "caocao",
+          "offset_x": 220,
+          "offset_y": 0,
+          "duration": 0.95,
+          "facing": "right"
+        },
+        {
+          "type": "move",
+          "target": "caocao",
+          "offset_x": 0,
+          "offset_y": 360,
+          "duration": 1.28,
+          "facing": "front"
+        }
+      ]
+    }
+  ]
+}

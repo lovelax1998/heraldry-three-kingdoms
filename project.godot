@@ -15,6 +15,16 @@ run/main_scene="uid://dei7mxrtmfp3"
 config/features=PackedStringArray("4.6", "C#", "Mobile")
 config/icon="res://icon.svg"
 
+[autoload]
+
+GameServices="*res://Scripts/Global/GameServices.cs"
+GameUi="*res://Scripts/Global/GameUi.cs"
+
+[display]
+
+window/size/viewport_width=1600
+window/size/viewport_height=900
+
 [dotnet]
 
 project/assembly_name="heralry three kingdoms"
@@ -53,5 +63,6 @@ Down={
 
 [rendering]
 
+textures/canvas_textures/default_texture_filter=0
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="mobile"

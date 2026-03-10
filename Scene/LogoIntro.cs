@@ -1,4 +1,5 @@
 using Godot;
+using System.Threading.Tasks;
 
 public partial class LogoIntro : Node2D
 {
@@ -12,10 +13,14 @@ public partial class LogoIntro : Node2D
     private Area2D _startGameButton;
     private CanvasItem _startGameGlow;
     private Sprite2D _startGameLabel;
+    private ColorRect _chapterTransitionBackdrop;
+    private VideoStreamPlayer _chapterTransitionVideo;
+    private Sprite2D _chapterTransitionArtwork;
     private readonly RandomNumberGenerator _rng = new();
 
     private bool _introFinished;
     private bool _startGameHovered;
+    private bool _startGameTransitioning;
     private Vector2 _maocaoRestScale = Vector2.One;
     private Vector2 _titleLandingPosition;
     private Vector2 _titleRestScale = Vector2.One;
@@ -23,6 +28,8 @@ public partial class LogoIntro : Node2D
     private float _titleTextureHeight;
     private Vector2 _startGameRestPosition;
     private Vector2 _startGameLabelRestScale = Vector2.One;
+    private Vector2 _chapterArtworkBaseScale = Vector2.One;
+    private Vector2 _lastViewportSize = Vector2.Zero;
     private Tween _startGameIdleTween;
     private Tween _startGameHoverTween;
     private static readonly Color StartGameBaseColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -35,9 +42,23 @@ public partial class LogoIntro : Node2D
     [Export] public int TitleBurstParticles { get; set; } = 18;
     [Export] public float StartGameEntranceDelay { get; set; } = 0.12f;
     [Export] public float StartGameHoverScale { get; set; } = 1.08f;
+    [Export] public string FirstStoryScenePath { get; set; } = "res://Scene/scene1_caocao_xuyun_dialog.tscn";
+    [ExportGroup("Chapter Transition")]
+    [Export] public float ChapterTransitionFadeInDuration { get; set; } = 0.26f;
+    [Export] public float ChapterVideoFadeOutDuration { get; set; } = 0.22f;
+    [Export] public float ChapterArtworkFadeInDuration { get; set; } = 0.58f;
+    [Export] public float ChapterArtworkHoldDuration { get; set; } = 2.35f;
+    [Export] public float ChapterArtworkFadeOutDuration { get; set; } = 0.26f;
+    [Export] public float ChapterBlackHoldBeforeSceneChange { get; set; } = 0.28f;
+    [Export] public float ChapterArtworkStartScaleMultiplier { get; set; } = 1.04f;
+    [Export] public float ChapterArtworkHoldScaleMultiplier { get; set; } = 1.018f;
+    [Export] public Vector2 ChapterArtworkEntranceOffset { get; set; } = new Vector2(0.0f, 12.0f);
+    [Export] public Vector2 ChapterArtworkHoldDrift { get; set; } = new Vector2(0.0f, -8.0f);
 
     public override void _Ready()
     {
+        GameUi.Instance?.HideStoryHeader();
+
         _rng.Randomize();
 
         _introVideo = GetNode<VideoStreamPlayer>("IntroVideo");
@@ -50,6 +71,9 @@ public partial class LogoIntro : Node2D
         _startGameButton = GetNodeOrNull<Area2D>("StartGameButton");
         _startGameGlow = GetNodeOrNull<CanvasItem>("StartGameButton/Glow");
         _startGameLabel = GetNodeOrNull<Sprite2D>("StartGameButton/Label");
+        _chapterTransitionBackdrop = GetNodeOrNull<ColorRect>("ChapterTransitionLayer/Backdrop");
+        _chapterTransitionVideo = GetNodeOrNull<VideoStreamPlayer>("ChapterTransitionLayer/ChapterVideo");
+        _chapterTransitionArtwork = GetNodeOrNull<Sprite2D>("ChapterTransitionLayer/ChapterArtwork");
 
         _maocaoRestScale = _maocaoLogo.Scale;
 
@@ -80,7 +104,13 @@ public partial class LogoIntro : Node2D
         InitializeLogo();
         InitializeTitle();
         InitializeStartGame();
+        InitializeChapterTransition();
 
+        _introVideo.Expand = true;
+        if (_chapterTransitionVideo != null)
+        {
+            _chapterTransitionVideo.Expand = true;
+        }
         _introVideo.Finished += OnIntroVideoFinished;
 
         if (!_introVideo.IsPlaying())
@@ -91,6 +121,19 @@ public partial class LogoIntro : Node2D
 
     public override void _Process(double delta)
     {
+        UpdateIntroVideoLayout();
+        UpdateChapterTransitionLayout();
+
+        if (_startGameTransitioning)
+        {
+            if (_startGameHovered)
+            {
+                SetStartGameHoverState(false);
+            }
+
+            return;
+        }
+
         if (_startGameButton == null || _startGameLabel == null || !_startGameButton.Visible)
         {
             if (_startGameHovered)
@@ -683,6 +726,257 @@ public partial class LogoIntro : Node2D
         _startGameClickSfxPlayer.Play();
     }
 
+    private void InitializeChapterTransition()
+    {
+        if (_chapterTransitionBackdrop != null)
+        {
+            _chapterTransitionBackdrop.Visible = false;
+            _chapterTransitionBackdrop.Modulate = new Color(1.0f, 1.0f, 1.0f, 0.0f);
+        }
+
+        if (_chapterTransitionVideo != null)
+        {
+            _chapterTransitionVideo.Visible = false;
+            _chapterTransitionVideo.Modulate = new Color(1.0f, 1.0f, 1.0f, 0.0f);
+            _chapterTransitionVideo.Autoplay = false;
+        }
+
+        if (_chapterTransitionArtwork != null)
+        {
+            _chapterTransitionArtwork.Visible = false;
+            _chapterTransitionArtwork.Modulate = new Color(1.0f, 1.0f, 1.0f, 0.0f);
+        }
+
+        UpdateChapterTransitionLayout(true);
+    }
+
+    private void UpdateIntroVideoLayout(bool force = false)
+    {
+        if (_introVideo == null)
+        {
+            return;
+        }
+
+        Vector2 viewportSize = GetViewportRect().Size;
+        _introVideo.Position = Vector2.Zero;
+        _introVideo.Size = viewportSize;
+        _introVideo.Expand = true;
+    }
+
+    private void UpdateChapterTransitionLayout(bool force = false)
+    {
+        Vector2 viewportSize = GetViewportRect().Size;
+        if (!force && (viewportSize - _lastViewportSize).LengthSquared() <= 0.25f)
+        {
+            return;
+        }
+
+        _lastViewportSize = viewportSize;
+
+        if (_chapterTransitionBackdrop != null)
+        {
+            _chapterTransitionBackdrop.Position = Vector2.Zero;
+            _chapterTransitionBackdrop.Size = viewportSize;
+        }
+
+        if (_chapterTransitionVideo != null)
+        {
+            _chapterTransitionVideo.Position = Vector2.Zero;
+            _chapterTransitionVideo.Size = viewportSize;
+        }
+
+        if (_chapterTransitionArtwork == null || _chapterTransitionArtwork.Texture == null)
+        {
+            return;
+        }
+
+        Vector2 textureSize = _chapterTransitionArtwork.Texture.GetSize();
+        if (textureSize.X <= 0.0f || textureSize.Y <= 0.0f)
+        {
+            return;
+        }
+
+        float fitScale = Mathf.Min(viewportSize.X / textureSize.X, viewportSize.Y / textureSize.Y);
+        _chapterArtworkBaseScale = Vector2.One * Mathf.Max(0.01f, fitScale);
+
+        if (!_startGameTransitioning || !_chapterTransitionArtwork.Visible)
+        {
+            _chapterTransitionArtwork.Position = viewportSize * 0.5f;
+            _chapterTransitionArtwork.Scale = _chapterArtworkBaseScale;
+        }
+    }
+
+    private async Task PlayChapterTransitionAsync()
+    {
+        bool hasChapterVideo = _chapterTransitionVideo?.Stream != null;
+        bool hasChapterArtwork = _chapterTransitionArtwork?.Texture != null;
+
+        if (!hasChapterVideo && !hasChapterArtwork)
+        {
+            await ToSignal(GetTree().CreateTimer(0.28f), SceneTreeTimer.SignalName.Timeout);
+            return;
+        }
+
+        UpdateChapterTransitionLayout(true);
+        KillTween(ref _startGameIdleTween);
+        KillTween(ref _startGameHoverTween);
+        _startGameHovered = false;
+
+        if (_startGameGlow != null)
+        {
+            _startGameGlow.Visible = false;
+        }
+
+        if (_startGameButton != null)
+        {
+            _startGameButton.InputPickable = false;
+        }
+
+        if (_chapterTransitionBackdrop != null)
+        {
+            _chapterTransitionBackdrop.Visible = true;
+            _chapterTransitionBackdrop.Modulate = new Color(1.0f, 1.0f, 1.0f, 0.0f);
+        }
+
+        if (_chapterTransitionVideo != null)
+        {
+            _chapterTransitionVideo.Stop();
+            _chapterTransitionVideo.Visible = hasChapterVideo;
+            _chapterTransitionVideo.Modulate = new Color(1.0f, 1.0f, 1.0f, 0.0f);
+        }
+
+        if (_chapterTransitionArtwork != null)
+        {
+            _chapterTransitionArtwork.Visible = false;
+            _chapterTransitionArtwork.Modulate = new Color(1.0f, 1.0f, 1.0f, 0.0f);
+            _chapterTransitionArtwork.Position = GetViewportRect().Size * 0.5f + ChapterArtworkEntranceOffset;
+            _chapterTransitionArtwork.Scale = _chapterArtworkBaseScale * ChapterArtworkStartScaleMultiplier;
+        }
+
+        Tween fadeIntoTransition = CreateTween();
+        fadeIntoTransition.SetParallel();
+
+        if (_chapterTransitionBackdrop != null)
+        {
+            fadeIntoTransition.TweenProperty(_chapterTransitionBackdrop, "modulate:a", 1.0f, ChapterTransitionFadeInDuration)
+                .SetEase(Tween.EaseType.Out)
+                .SetTrans(Tween.TransitionType.Sine);
+        }
+
+        if (hasChapterVideo && _chapterTransitionVideo != null)
+        {
+            fadeIntoTransition.TweenProperty(_chapterTransitionVideo, "modulate:a", 1.0f, ChapterTransitionFadeInDuration)
+                .SetEase(Tween.EaseType.Out)
+                .SetTrans(Tween.TransitionType.Sine);
+        }
+
+        if (_maocaoLogo != null && _maocaoLogo.Visible)
+        {
+            fadeIntoTransition.TweenProperty(_maocaoLogo, "modulate:a", 0.0f, ChapterTransitionFadeInDuration * 0.85f)
+                .SetEase(Tween.EaseType.In)
+                .SetTrans(Tween.TransitionType.Sine);
+        }
+
+        if (_titleLogo != null && _titleLogo.Visible)
+        {
+            fadeIntoTransition.TweenProperty(_titleLogo, "modulate:a", 0.0f, ChapterTransitionFadeInDuration * 0.85f)
+                .SetEase(Tween.EaseType.In)
+                .SetTrans(Tween.TransitionType.Sine);
+        }
+
+        if (_startGameButton != null && _startGameButton.Visible)
+        {
+            fadeIntoTransition.TweenProperty(_startGameButton, "modulate:a", 0.0f, ChapterTransitionFadeInDuration * 0.75f)
+                .SetEase(Tween.EaseType.In)
+                .SetTrans(Tween.TransitionType.Sine);
+        }
+
+        await ToSignal(fadeIntoTransition, Tween.SignalName.Finished);
+
+        if (_maocaoLogo != null)
+        {
+            _maocaoLogo.Visible = false;
+        }
+
+        if (_titleLogo != null)
+        {
+            _titleLogo.Visible = false;
+        }
+
+        if (_startGameButton != null)
+        {
+            _startGameButton.Visible = false;
+        }
+
+        if (hasChapterVideo && _chapterTransitionVideo != null)
+        {
+            _chapterTransitionVideo.Play();
+            await ToSignal(_chapterTransitionVideo, VideoStreamPlayer.SignalName.Finished);
+
+            Tween fadeVideoOut = CreateTween();
+            fadeVideoOut.TweenProperty(_chapterTransitionVideo, "modulate:a", 0.0f, ChapterVideoFadeOutDuration)
+                .SetEase(Tween.EaseType.InOut)
+                .SetTrans(Tween.TransitionType.Sine);
+            await ToSignal(fadeVideoOut, Tween.SignalName.Finished);
+
+            _chapterTransitionVideo.Stop();
+            _chapterTransitionVideo.Visible = false;
+        }
+        else
+        {
+            await ToSignal(GetTree().CreateTimer(0.10f), SceneTreeTimer.SignalName.Timeout);
+        }
+
+        if (hasChapterArtwork && _chapterTransitionArtwork != null)
+        {
+            _chapterTransitionArtwork.Visible = true;
+            _chapterTransitionArtwork.Modulate = new Color(1.0f, 1.0f, 1.0f, 0.0f);
+            _chapterTransitionArtwork.Position = GetViewportRect().Size * 0.5f + ChapterArtworkEntranceOffset;
+            _chapterTransitionArtwork.Scale = _chapterArtworkBaseScale * ChapterArtworkStartScaleMultiplier;
+
+            Tween showArtwork = CreateTween();
+            showArtwork.SetParallel();
+            showArtwork.TweenProperty(_chapterTransitionArtwork, "modulate:a", 1.0f, ChapterArtworkFadeInDuration)
+                .SetEase(Tween.EaseType.Out)
+                .SetTrans(Tween.TransitionType.Sine);
+            showArtwork.TweenProperty(_chapterTransitionArtwork, "position", GetViewportRect().Size * 0.5f, ChapterArtworkFadeInDuration)
+                .SetEase(Tween.EaseType.Out)
+                .SetTrans(Tween.TransitionType.Cubic);
+            showArtwork.TweenProperty(_chapterTransitionArtwork, "scale", _chapterArtworkBaseScale, ChapterArtworkFadeInDuration)
+                .SetEase(Tween.EaseType.Out)
+                .SetTrans(Tween.TransitionType.Cubic);
+            await ToSignal(showArtwork, Tween.SignalName.Finished);
+
+            if (ChapterArtworkHoldDuration > 0.0f)
+            {
+                Tween holdArtwork = CreateTween();
+                holdArtwork.SetParallel();
+                holdArtwork.TweenProperty(_chapterTransitionArtwork, "position", (GetViewportRect().Size * 0.5f) + ChapterArtworkHoldDrift, ChapterArtworkHoldDuration)
+                    .SetEase(Tween.EaseType.InOut)
+                    .SetTrans(Tween.TransitionType.Sine);
+                holdArtwork.TweenProperty(_chapterTransitionArtwork, "scale", _chapterArtworkBaseScale * ChapterArtworkHoldScaleMultiplier, ChapterArtworkHoldDuration)
+                    .SetEase(Tween.EaseType.InOut)
+                    .SetTrans(Tween.TransitionType.Sine);
+                await ToSignal(holdArtwork, Tween.SignalName.Finished);
+            }
+
+            Tween hideArtwork = CreateTween();
+            hideArtwork.SetParallel();
+            hideArtwork.TweenProperty(_chapterTransitionArtwork, "modulate:a", 0.0f, ChapterArtworkFadeOutDuration)
+                .SetEase(Tween.EaseType.In)
+                .SetTrans(Tween.TransitionType.Sine);
+            hideArtwork.TweenProperty(_chapterTransitionArtwork, "scale", _chapterArtworkBaseScale * 0.985f, ChapterArtworkFadeOutDuration)
+                .SetEase(Tween.EaseType.In)
+                .SetTrans(Tween.TransitionType.Sine);
+            await ToSignal(hideArtwork, Tween.SignalName.Finished);
+        }
+
+        if (ChapterBlackHoldBeforeSceneChange > 0.0f)
+        {
+            await ToSignal(GetTree().CreateTimer(ChapterBlackHoldBeforeSceneChange), SceneTreeTimer.SignalName.Timeout);
+        }
+    }
+
     private void KillTween(ref Tween tween)
     {
         if (tween != null && GodotObject.IsInstanceValid(tween))
@@ -709,8 +1003,37 @@ public partial class LogoIntro : Node2D
         }
     }
 
+    private async void BeginStartGameTransition()
+    {
+        if (_startGameTransitioning)
+        {
+            return;
+        }
+
+        _startGameTransitioning = true;
+        PlayStartGameClickSfx();
+
+        if (_loopMusic != null && _loopMusic.Playing)
+        {
+            _loopMusic.Stop();
+        }
+
+        await PlayChapterTransitionAsync();
+
+        Error changeSceneResult = GetTree().ChangeSceneToFile(FirstStoryScenePath);
+        if (changeSceneResult != Error.Ok)
+        {
+            GD.PushWarning($"Failed to open first story scene: {FirstStoryScenePath} ({changeSceneResult})");
+            _startGameTransitioning = false;
+        }
+    }
     public override void _Input(InputEvent @event)
     {
+        if (_startGameTransitioning)
+        {
+            return;
+        }
+
         if (@event is InputEventMouseButton mouseButtonEvent
             && mouseButtonEvent.Pressed
             && mouseButtonEvent.ButtonIndex == MouseButton.Left
@@ -718,8 +1041,7 @@ public partial class LogoIntro : Node2D
             && _startGameButton != null
             && _startGameButton.Visible)
         {
-            PlayStartGameClickSfx();
-            GD.Print("Start Game button clicked.");
+            BeginStartGameTransition();
             return;
         }
 
@@ -733,3 +1055,5 @@ public partial class LogoIntro : Node2D
         }
     }
 }
+
+

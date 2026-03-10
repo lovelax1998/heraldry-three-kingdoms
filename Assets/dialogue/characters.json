@@ -1,0 +1,54 @@
+{
+  "caocao": {
+    "display_name": "曹操",
+    "default_portrait": "normal",
+    "portrait_scale": 0.34,
+    "s_model_scale": 0.78,
+    "s_model_sheet": "res://Assets/Characters/caocao/caocao_s_model_chroma.png",
+    "portraits": {
+      "normal": "res://Assets/Characters/caocao/caocao_normal.png",
+      "angry": "res://Assets/Characters/caocao/caocao_angry.png",
+      "happy": "res://Assets/Characters/caocao/caocao_happy.png"
+    }
+  },
+  "xuyun": {
+    "display_name": "许芸",
+    "default_portrait": "normal",
+    "portrait_scale": 0.40,
+    "s_model_scale": 0.78,
+    "s_model_sheet": "res://Assets/Characters/xuyun/xuyun_s_model_chroma.png",
+    "portraits": {
+      "normal": "res://Assets/Characters/xuyun/xuyun_normal.png"
+    }
+  },
+  "liubei": {
+    "display_name": "刘备",
+    "default_portrait": "normal",
+    "portrait_scale": 0.40,
+    "s_model_scale": 0.78,
+    "s_model_sheet": "res://Assets/Characters/liubei/liubei_s_model_chroma.png",
+    "portraits": {
+      "normal": "res://Assets/Characters/liubei/liubei_normal.png"
+    }
+  },
+  "guanyu": {
+    "display_name": "关羽",
+    "default_portrait": "normal",
+    "portrait_scale": 0.40,
+    "s_model_scale": 0.78,
+    "s_model_sheet": "res://Assets/Characters/guanyu/guanyu_s_model_chroma.png",
+    "portraits": {
+      "normal": "res://Assets/Characters/guanyu/guanyu_normal.png"
+    }
+  },
+  "zhangfei": {
+    "display_name": "张飞",
+    "default_portrait": "normal",
+    "portrait_scale": 0.40,
+    "s_model_scale": 0.78,
+    "s_model_sheet": "res://Assets/Characters/zhangfei/zhangfei_s_model_chroma.png",
+    "portraits": {
+      "normal": "res://Assets/Characters/zhangfei/zhangfei_normal.png"
+    }
+  }
+}

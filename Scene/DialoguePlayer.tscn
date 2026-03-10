@@ -1,0 +1,61 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Dialogue/DialoguePlayer.cs" id="1_dialogue_script"]
+
+[node name="DialoguePlayer" type="CanvasLayer"]
+layer = 2
+script = ExtResource("1_dialogue_script")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+offset_right = 1600.0
+offset_bottom = 900.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0.05)
+
+[node name="Portrait" type="Sprite2D" parent="."]
+position = Vector2(140, 360)
+scale = Vector2(0.34, 0.34)
+z_index = 2
+
+[node name="DialogueBox" type="Panel" parent="."]
+offset_left = 280.0
+offset_top = 470.0
+offset_right = 900.0
+offset_bottom = 620.0
+mouse_filter = 2
+z_index = 5
+
+[node name="NamePlate" type="Panel" parent="."]
+offset_left = 300.0
+offset_top = 436.0
+offset_right = 450.0
+offset_bottom = 474.0
+mouse_filter = 2
+z_index = 6
+
+[node name="SpeakerName" type="Label" parent="."]
+offset_left = 318.0
+offset_top = 440.0
+offset_right = 440.0
+offset_bottom = 472.0
+mouse_filter = 2
+z_index = 7
+text = ""
+
+[node name="DialogueText" type="Label" parent="."]
+offset_left = 308.0
+offset_top = 500.0
+offset_right = 874.0
+offset_bottom = 592.0
+mouse_filter = 2
+z_index = 7
+text = ""
+
+[node name="AdvanceIndicator" type="Label" parent="."]
+offset_left = 854.0
+offset_top = 582.0
+offset_right = 890.0
+offset_bottom = 616.0
+mouse_filter = 2
+z_index = 7
+text = "▼"
