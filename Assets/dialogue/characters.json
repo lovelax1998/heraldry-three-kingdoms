@@ -5,6 +5,7 @@
     "portrait_scale": 0.34,
     "s_model_scale": 0.78,
     "s_model_sheet": "res://Assets/Characters/caocao/caocao_s_model_chroma.png",
+    "s_model_sub_sheet": "res://Assets/Characters/caocao/caocao_s_model_sub_chroma.png",
     "portraits": {
       "normal": "res://Assets/Characters/caocao/caocao_normal.png",
       "angry": "res://Assets/Characters/caocao/caocao_angry.png",
@@ -17,6 +18,7 @@
     "portrait_scale": 0.40,
     "s_model_scale": 0.78,
     "s_model_sheet": "res://Assets/Characters/xuyun/xuyun_s_model_chroma.png",
+    "s_model_sub_sheet": "res://Assets/Characters/xuyun/xuyun_s_model_sub_chroma.png",
     "portraits": {
       "normal": "res://Assets/Characters/xuyun/xuyun_normal.png"
     }
@@ -27,6 +29,7 @@
     "portrait_scale": 0.40,
     "s_model_scale": 0.78,
     "s_model_sheet": "res://Assets/Characters/liubei/liubei_s_model_chroma.png",
+    "s_model_sub_sheet": "res://Assets/Characters/liubei/liubei_s_model_sub_chroma.png",
     "portraits": {
       "normal": "res://Assets/Characters/liubei/liubei_normal.png"
     }
@@ -37,6 +40,7 @@
     "portrait_scale": 0.40,
     "s_model_scale": 0.78,
     "s_model_sheet": "res://Assets/Characters/guanyu/guanyu_s_model_chroma.png",
+    "s_model_sub_sheet": "res://Assets/Characters/guanyu/guanyu_s_model_sub_chroma.png",
     "portraits": {
       "normal": "res://Assets/Characters/guanyu/guanyu_normal.png"
     }
@@ -47,6 +51,7 @@
     "portrait_scale": 0.40,
     "s_model_scale": 0.78,
     "s_model_sheet": "res://Assets/Characters/zhangfei/zhangfei_s_model_chroma.png",
+    "s_model_sub_sheet": "res://Assets/Characters/zhangfei/zhangfei_s_model_sub_chroma.png",
     "portraits": {
       "normal": "res://Assets/Characters/zhangfei/zhangfei_normal.png"
     }

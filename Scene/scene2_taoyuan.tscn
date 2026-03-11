@@ -1,8 +1,9 @@
-[gd_scene format=3 uid="uid://dduw5j0odapnr"]
+[gd_scene load_steps=4 format=3 uid="uid://dduw5j0odapnr"]
 
 [ext_resource type="Texture2D" uid="uid://bn6cply3f16uy" path="res://Assets/background/taoyuan.jpg" id="1_6s82b"]
 [ext_resource type="Script" uid="uid://dh3miqw3q1l6v" path="res://Scene/Scene2Taoyuan.cs" id="1_e8eyn"]
 [ext_resource type="Script" uid="uid://dklb272cjmyyy" path="res://Scripts/Dialogue/SModelActor.cs" id="4_l05u4"]
+[ext_resource type="PackedScene" path="res://Scene/DialoguePlayer.tscn" id="5_dialogue_scene"]
 
 [node name="Control" type="Control" unique_id=826815931]
 layout_mode = 3
@@ -30,19 +31,21 @@ stretch_mode = 6
 texture_filter = 1
 script = ExtResource("4_l05u4")
 
-[node name="GuanyuActor" type="Sprite2D" parent="WorldRoot" unique_id=715302784]
+[node name="GuanyuActor" type="Sprite2D" parent="WorldRoot"]
 texture_filter = 1
 script = ExtResource("4_l05u4")
 
-[node name="ZhangfeiActor" type="Sprite2D" parent="WorldRoot" unique_id=1980975327]
+[node name="ZhangfeiActor" type="Sprite2D" parent="WorldRoot"]
 texture_filter = 1
 script = ExtResource("4_l05u4")
 
 [node name="LiubeiMarker" type="Marker2D" parent="WorldRoot" unique_id=1551235929]
-position = Vector2(939, 374)
+position = Vector2(615, 475)
 
-[node name="GuanyuMarker" type="Marker2D" parent="WorldRoot" unique_id=1548852557]
-position = Vector2(746, 638)
+[node name="GuanyuMarker" type="Marker2D" parent="WorldRoot"]
+position = Vector2(520, 490)
 
-[node name="ZhangfeiMarker" type="Marker2D" parent="WorldRoot" unique_id=216749160]
-position = Vector2(575, 459)
+[node name="ZhangfeiMarker" type="Marker2D" parent="WorldRoot"]
+position = Vector2(725, 490)
+
+[node name="DialoguePlayer" parent="." instance=ExtResource("5_dialogue_scene")]

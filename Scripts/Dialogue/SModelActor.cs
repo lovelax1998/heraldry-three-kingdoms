@@ -4,7 +4,16 @@ using System.Collections.Generic;
 
 public partial class SModelActor : Sprite2D
 {
+    private sealed class AnimationClipDefinition
+    {
+        public Vector2I[] Frames { get; init; } = Array.Empty<Vector2I>();
+        public Vector2I[] FallbackFrames { get; init; } = Array.Empty<Vector2I>();
+        public bool UseSubSheet { get; init; }
+        public float? FramesPerSecond { get; init; }
+    }
+
     [Export] public float AnimationFps { get; set; } = 7.0f;
+    [Export] public float IdleAnimationFps { get; set; } = 1.0f;
     [Export] public int SheetColumns { get; set; } = 5;
     [Export] public int SheetRows { get; set; } = 5;
     [Export] public int SheetOuterPadding { get; set; } = 3;
@@ -12,12 +21,15 @@ public partial class SModelActor : Sprite2D
     [Export] public int FrameInset { get; set; } = 2;
     [Export] public bool SideFramesFaceRight { get; set; } = true;
 
-    private readonly Dictionary<string, Vector2I[]> _animations = new();
+    private readonly Dictionary<string, AnimationClipDefinition> _animations = new();
     private Vector2I[] _currentFrames = Array.Empty<Vector2I>();
     private int _frameIndex;
     private double _frameTimer;
     private bool _loop = true;
     private bool _holdLastFrame;
+    private float _currentAnimationFps;
+    private Texture2D _mainTexture;
+    private Texture2D _subTexture;
 
     public override void _Ready()
     {
@@ -28,6 +40,8 @@ public partial class SModelActor : Sprite2D
         Hframes = 1;
         Vframes = 1;
 
+        _mainTexture ??= Texture;
+
         BuildAnimations();
         PlayPresetAnimation("idle_front", "right");
     }
@@ -36,17 +50,28 @@ public partial class SModelActor : Sprite2D
     {
         Position = Position.Round();
 
-        if (_currentFrames.Length <= 1 || AnimationFps <= 0.0f)
+        if (_currentFrames.Length <= 1 || _currentAnimationFps <= 0.0f)
         {
             return;
         }
 
-        double frameDuration = 1.0 / AnimationFps;
+        double frameDuration = 1.0 / _currentAnimationFps;
         _frameTimer += delta;
         while (_frameTimer >= frameDuration)
         {
             _frameTimer -= frameDuration;
             AdvanceFrame();
+        }
+    }
+
+    public void SetAnimationSheets(Texture2D mainTexture, Texture2D subTexture = null)
+    {
+        _mainTexture = mainTexture;
+        _subTexture = subTexture;
+
+        if (_mainTexture != null)
+        {
+            Texture = _mainTexture;
         }
     }
 
@@ -81,12 +106,19 @@ public partial class SModelActor : Sprite2D
 
     public float GetAnimationDuration(string animationName)
     {
-        if (!_animations.TryGetValue(animationName, out Vector2I[] frames) || frames.Length == 0 || AnimationFps <= 0.0f)
+        if (!_animations.TryGetValue(animationName, out AnimationClipDefinition clip))
         {
             return 0.0f;
         }
 
-        return frames.Length / AnimationFps;
+        Vector2I[] frames = ResolveFrames(clip, out _);
+        float fps = ResolveFramesPerSecond(clip);
+        if (frames.Length == 0 || fps <= 0.0f)
+        {
+            return 0.0f;
+        }
+
+        return frames.Length / fps;
     }
 
     public void PlayDirectionalAnimation(string animationBaseName, string facing, bool loop = true, bool holdLastFrame = false)
@@ -143,10 +175,23 @@ public partial class SModelActor : Sprite2D
 
     public void PlayAnimation(string animationName, bool loop = true, bool holdLastFrame = false)
     {
-        if (!_animations.TryGetValue(animationName, out Vector2I[] frames) || frames.Length == 0)
+        if (!_animations.TryGetValue(animationName, out AnimationClipDefinition clip))
         {
             GD.PushWarning($"SModel animation '{animationName}' is not defined on {Name}.");
             return;
+        }
+
+        Vector2I[] frames = ResolveFrames(clip, out bool useSubSheet);
+        if (frames.Length == 0)
+        {
+            GD.PushWarning($"SModel animation '{animationName}' has no valid frames on {Name}.");
+            return;
+        }
+
+        Texture2D animationTexture = ResolveTextureForClip(useSubSheet);
+        if (animationTexture != null)
+        {
+            Texture = animationTexture;
         }
 
         _currentFrames = frames;
@@ -154,7 +199,44 @@ public partial class SModelActor : Sprite2D
         _frameTimer = 0.0;
         _loop = loop;
         _holdLastFrame = holdLastFrame;
+        _currentAnimationFps = ResolveFramesPerSecond(clip);
         ApplyFrameRegion(_currentFrames[0]);
+    }
+
+    private Vector2I[] ResolveFrames(AnimationClipDefinition clip, out bool useSubSheet)
+    {
+        useSubSheet = clip != null && clip.UseSubSheet && _subTexture != null;
+        if (useSubSheet && clip.Frames.Length > 0)
+        {
+            return clip.Frames;
+        }
+
+        if (clip?.FallbackFrames != null && clip.FallbackFrames.Length > 0)
+        {
+            return clip.FallbackFrames;
+        }
+
+        return clip?.Frames ?? Array.Empty<Vector2I>();
+    }
+
+    private float ResolveFramesPerSecond(AnimationClipDefinition clip)
+    {
+        if (clip?.FramesPerSecond is float clipFps && clipFps > 0.0f)
+        {
+            return clipFps;
+        }
+
+        return AnimationFps;
+    }
+
+    private Texture2D ResolveTextureForClip(bool useSubSheet)
+    {
+        if (useSubSheet && _subTexture != null)
+        {
+            return _subTexture;
+        }
+
+        return _mainTexture ?? Texture;
     }
 
     private void AdvanceFrame()
@@ -217,57 +299,93 @@ public partial class SModelActor : Sprite2D
 
     private void BuildAnimations()
     {
-        _animations["idle_front"] = new[] { new Vector2I(0, 0) };
-        _animations["idle_side"] = new[] { new Vector2I(0, 1) };
-        _animations["idle_back"] = new[] { new Vector2I(0, 2) };
-
-        _animations["walk_front"] = new[]
+        _animations["idle_front"] = new AnimationClipDefinition
         {
-            new Vector2I(0, 3),
-            new Vector2I(0, 0),
-            new Vector2I(1, 3),
-            new Vector2I(0, 0)
+            Frames = new[] { new Vector2I(0, 0), new Vector2I(1, 0) },
+            FallbackFrames = new[] { new Vector2I(0, 0) },
+            UseSubSheet = true,
+            FramesPerSecond = IdleAnimationFps
         };
-        _animations["walk_side"] = new[]
+        _animations["idle_side"] = new AnimationClipDefinition
         {
-            new Vector2I(2, 3),
-            new Vector2I(0, 1),
-            new Vector2I(3, 3),
-            new Vector2I(0, 1)
+            Frames = new[] { new Vector2I(2, 0), new Vector2I(3, 0) },
+            FallbackFrames = new[] { new Vector2I(0, 1) },
+            UseSubSheet = true,
+            FramesPerSecond = IdleAnimationFps
         };
-        _animations["walk_back"] = new[]
+        _animations["idle_back"] = new AnimationClipDefinition
         {
-            new Vector2I(4, 3),
-            new Vector2I(0, 2),
-            new Vector2I(0, 4),
-            new Vector2I(0, 2)
+            Frames = new[] { new Vector2I(4, 0), new Vector2I(0, 1) },
+            FallbackFrames = new[] { new Vector2I(0, 2) },
+            UseSubSheet = true,
+            FramesPerSecond = IdleAnimationFps
         };
 
-        _animations["attack_front"] = new[]
+        _animations["walk_front"] = new AnimationClipDefinition
         {
-            new Vector2I(1, 0),
-            new Vector2I(2, 0),
-            new Vector2I(3, 0)
+            Frames = new[]
+            {
+                new Vector2I(0, 3),
+                new Vector2I(0, 0),
+                new Vector2I(1, 3),
+                new Vector2I(0, 0)
+            }
         };
-        _animations["attack_side"] = new[]
+        _animations["walk_side"] = new AnimationClipDefinition
         {
-            new Vector2I(1, 1),
-            new Vector2I(2, 1),
-            new Vector2I(3, 1)
+            Frames = new[]
+            {
+                new Vector2I(2, 3),
+                new Vector2I(0, 1),
+                new Vector2I(3, 3),
+                new Vector2I(0, 1)
+            }
         };
-        _animations["attack_back"] = new[]
+        _animations["walk_back"] = new AnimationClipDefinition
         {
-            new Vector2I(1, 2),
-            new Vector2I(2, 2),
-            new Vector2I(3, 2)
+            Frames = new[]
+            {
+                new Vector2I(4, 3),
+                new Vector2I(0, 2),
+                new Vector2I(0, 4),
+                new Vector2I(0, 2)
+            }
         };
 
-        _animations["guard_front"] = new[] { new Vector2I(4, 0) };
-        _animations["guard_side"] = new[] { new Vector2I(4, 1) };
-        _animations["guard_back"] = new[] { new Vector2I(4, 2) };
-        _animations["celebrate_front"] = new[] { new Vector2I(1, 4) };
-        _animations["hit_front"] = new[] { new Vector2I(2, 4) };
-        _animations["kneel_front"] = new[] { new Vector2I(3, 4) };
-        _animations["down_front"] = new[] { new Vector2I(4, 4) };
+        _animations["attack_front"] = new AnimationClipDefinition
+        {
+            Frames = new[]
+            {
+                new Vector2I(1, 0),
+                new Vector2I(2, 0),
+                new Vector2I(3, 0)
+            }
+        };
+        _animations["attack_side"] = new AnimationClipDefinition
+        {
+            Frames = new[]
+            {
+                new Vector2I(1, 1),
+                new Vector2I(2, 1),
+                new Vector2I(3, 1)
+            }
+        };
+        _animations["attack_back"] = new AnimationClipDefinition
+        {
+            Frames = new[]
+            {
+                new Vector2I(1, 2),
+                new Vector2I(2, 2),
+                new Vector2I(3, 2)
+            }
+        };
+
+        _animations["guard_front"] = new AnimationClipDefinition { Frames = new[] { new Vector2I(4, 0) } };
+        _animations["guard_side"] = new AnimationClipDefinition { Frames = new[] { new Vector2I(4, 1) } };
+        _animations["guard_back"] = new AnimationClipDefinition { Frames = new[] { new Vector2I(4, 2) } };
+        _animations["celebrate_front"] = new AnimationClipDefinition { Frames = new[] { new Vector2I(1, 4) } };
+        _animations["hit_front"] = new AnimationClipDefinition { Frames = new[] { new Vector2I(2, 4) } };
+        _animations["kneel_front"] = new AnimationClipDefinition { Frames = new[] { new Vector2I(3, 4) } };
+        _animations["down_front"] = new AnimationClipDefinition { Frames = new[] { new Vector2I(4, 4) } };
     }
 }

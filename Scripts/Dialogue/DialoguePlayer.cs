@@ -43,6 +43,7 @@ public partial class DialoguePlayer : CanvasLayer
         _speakerName = GetNode<Label>("SpeakerName");
         _dialogueText = GetNode<Label>("DialogueText");
         _advanceIndicator = GetNode<Label>("AdvanceIndicator");
+        InitializeBubblePresentation();
 
         ConfigurePanels();
         ConfigureFonts();
@@ -50,10 +51,9 @@ public partial class DialoguePlayer : CanvasLayer
         SetProcessUnhandledInput(true);
 
         Visible = false;
-        _portrait.Visible = false;
-        _advanceIndicator.Visible = false;
         _speakerName.Text = string.Empty;
         _dialogueText.Text = string.Empty;
+        ResetDialoguePresentationState();
 
         ApplyLayout(true);
     }
@@ -66,6 +66,11 @@ public partial class DialoguePlayer : CanvasLayer
     public override void _Process(double delta)
     {
         ApplyLayout();
+
+        if (HandleBubbleTypingProgress())
+        {
+            return;
+        }
 
         if (!_isTyping)
         {
@@ -130,12 +135,10 @@ public partial class DialoguePlayer : CanvasLayer
         _scheduledAutoAdvanceLineIndex = -1;
 
         KillTween(ref _advanceTween);
-        _advanceIndicator.Visible = false;
-        _portrait.Visible = false;
+        ResetDialoguePresentationState();
 
         ApplyLayout(true);
         Visible = true;
-        PlayIntroReveal();
         await AdvanceDialogueAsync(skipExitActions: true);
     }
 
@@ -193,24 +196,7 @@ public partial class DialoguePlayer : CanvasLayer
 
             DialogueLineDefinition line = _sceneDefinition.Lines[_lineIndex];
             Visible = true;
-            SetCurrentSpeakerPortrait(line.Speaker, line.Expression);
-            ApplyLayout(true);
-
-            _speakerName.Text = GetDisplayName(line.Speaker);
-            _currentText = line.Text ?? string.Empty;
-            _dialogueText.Text = _currentText;
-            _dialogueText.VisibleCharacters = 0;
-            _visibleCharacters = 0.0;
-            _isTyping = _currentText.Length > 0;
-
-            KillTween(ref _advanceTween);
-            _advanceIndicator.Visible = false;
-            _advanceIndicator.Position = _advanceIndicatorRestPosition;
-
-            if (!_isTyping)
-            {
-                FinishTyping();
-            }
+            ApplyLinePresentation(line);
 
             await RunLineEnterActionsAsync(line);
         }
@@ -320,6 +306,11 @@ public partial class DialoguePlayer : CanvasLayer
 
     private void FinishTyping()
     {
+        if (HandleBubbleFinishTyping())
+        {
+            return;
+        }
+
         _isTyping = false;
         _dialogueText.VisibleCharacters = -1;
 
@@ -338,6 +329,11 @@ public partial class DialoguePlayer : CanvasLayer
 
     private void RevealCurrentLine()
     {
+        if (HandleBubbleRevealCurrentLine())
+        {
+            return;
+        }
+
         _dialogueText.VisibleCharacters = -1;
         FinishTyping();
     }
@@ -346,6 +342,7 @@ public partial class DialoguePlayer : CanvasLayer
     {
         CancelAutoAdvance();
         KillTween(ref _advanceTween);
+        ResetDialoguePresentationState();
         Visible = false;
         _sceneDefinition = null;
         EmitSignal(SignalName.DialogueFinished);

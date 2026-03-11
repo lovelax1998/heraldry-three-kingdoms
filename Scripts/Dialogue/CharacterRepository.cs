@@ -1,4 +1,4 @@
-﻿using Godot;
+using Godot;
 using System.Collections.Generic;
 
 public sealed class CharacterRepository
@@ -6,6 +6,7 @@ public sealed class CharacterRepository
     private readonly Dictionary<string, DialogueCharacterDefinition> _definitions;
     private readonly Dictionary<string, Texture2D> _portraitCache = new();
     private readonly Dictionary<string, Texture2D> _sModelCache = new();
+    private readonly Dictionary<string, Texture2D> _sModelSubCache = new();
 
     private CharacterRepository(Dictionary<string, DialogueCharacterDefinition> definitions)
     {
@@ -96,24 +97,35 @@ public sealed class CharacterRepository
     public Texture2D GetSModelSheet(string characterId)
     {
         DialogueCharacterDefinition definition = GetDefinition(characterId);
-        if (string.IsNullOrWhiteSpace(definition.SModelSheet))
+        return LoadSModelTexture(characterId, definition.SModelSheet, _sModelCache, "s-model sheet");
+    }
+
+    public Texture2D GetSModelSubSheet(string characterId)
+    {
+        DialogueCharacterDefinition definition = GetDefinition(characterId);
+        return LoadSModelTexture(characterId, definition.SModelSubSheet, _sModelSubCache, "s-model sub sheet");
+    }
+
+    private Texture2D LoadSModelTexture(string characterId, string resourcePath, Dictionary<string, Texture2D> cache, string label)
+    {
+        if (string.IsNullOrWhiteSpace(resourcePath))
         {
             return null;
         }
 
-        if (_sModelCache.TryGetValue(characterId, out Texture2D cachedTexture))
+        if (cache.TryGetValue(characterId, out Texture2D cachedTexture))
         {
             return cachedTexture;
         }
 
-        Texture2D texture = ResourceLoader.Load<Texture2D>(definition.SModelSheet);
+        Texture2D texture = ResourceLoader.Load<Texture2D>(resourcePath);
         if (texture == null)
         {
-            GD.PushWarning($"Failed to load s-model sheet: {definition.SModelSheet}");
+            GD.PushWarning($"Failed to load {label}: {resourcePath}");
             return null;
         }
 
-        _sModelCache[characterId] = texture;
+        cache[characterId] = texture;
         return texture;
     }
 }

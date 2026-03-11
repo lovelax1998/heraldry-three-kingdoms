@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://Scripts/Dialogue/DialoguePlayer.cs" id="1_dialogue_script"]
+[ext_resource type="PackedScene" path="res://Scene/UI/BubbleDialogueLayer.tscn" id="2_bubble_dialogue_layer"]
 
 [node name="DialoguePlayer" type="CanvasLayer"]
 layer = 2
@@ -59,3 +60,5 @@ offset_bottom = 616.0
 mouse_filter = 2
 z_index = 7
 text = "▼"
+
+[node name="BubbleDialogueLayer" parent="." instance=ExtResource("2_bubble_dialogue_layer")]

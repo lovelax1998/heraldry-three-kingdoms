@@ -1,0 +1,56 @@
+{
+  "scene_id": "scene2_taoyuan_sisters_test",
+  "cast": {
+    "liubei": {
+      "display_name": "刘备"
+    },
+    "guanyu": {
+      "display_name": "关羽"
+    },
+    "zhangfei": {
+      "display_name": "张飞"
+    }
+  },
+  "lines": [
+    {
+      "dialog_type": "bubble",
+      "speaker": "liubei",
+      "text": "二位妹妹，今日桃花正盛，天地可鉴。若要结义，便以此心，共扶乱世。",
+      "bubble_width": 300
+    },
+    {
+      "dialog_type": "bubble",
+      "speaker": "guanyu",
+      "text": "若能同心济世，关羽愿与长姐共立此誓。自今而后，祸福与共。",
+      "bubble_width": 288
+    },
+    {
+      "dialog_type": "bubble",
+      "speaker": "zhangfei",
+      "text": "俺也去！往后谁敢欺负咱们姐妹，我第一个不答应！",
+      "bubble_width": 286
+    },
+    {
+      "dialog_type": "bubble",
+      "simultaneous": true,
+      "entries": [
+        {
+          "speaker": "guanyu",
+          "text": "愿同生死。",
+          "bubble_width": 220
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "愿共进退！",
+          "bubble_width": 220
+        }
+      ]
+    },
+    {
+      "dialog_type": "bubble",
+      "speaker": "liubei",
+      "text": "好。那便焚香设誓——从今日起，我们三人便是休戚与共的姐妹。",
+      "bubble_width": 312
+    }
+  ]
+}

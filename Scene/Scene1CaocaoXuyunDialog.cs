@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-public partial class Scene1CaocaoXuyunDialog : Node2D, IDialogueActionRunner
+public partial class Scene1CaocaoXuyunDialog : Node2D, IDialogueActionRunner, IDialogueActorLocator
 {
     [Export] public string SceneScriptPath { get; set; } = "res://Assets/dialogue/scripts/scene1_caocao_xuyun_dialog.json";
     [ExportGroup("Action Coordinates")]
@@ -234,10 +234,8 @@ public partial class Scene1CaocaoXuyunDialog : Node2D, IDialogueActionRunner
         }
 
         Texture2D actorTexture = _characterRepository?.GetSModelSheet(actorId);
-        if (actorTexture != null)
-        {
-            actor.Texture = actorTexture;
-        }
+        Texture2D actorSubTexture = _characterRepository?.GetSModelSubSheet(actorId);
+        actor.SetAnimationSheets(actorTexture, actorSubTexture);
 
         float actorScale = (_characterRepository?.GetSModelScale(actorId) ?? 1.0f) * SceneActorScale;
         actor.Position = position;
@@ -504,6 +502,11 @@ public partial class Scene1CaocaoXuyunDialog : Node2D, IDialogueActionRunner
                 GD.PushWarning($"Unsupported dialogue action type '{action.Type}' on {Name}.");
                 break;
         }
+    }
+
+    public Node2D ResolveDialogueActorNode(string actorId)
+    {
+        return ResolveSceneActor(actorId);
     }
 
     private SModelActor ResolveSceneActor(string target)

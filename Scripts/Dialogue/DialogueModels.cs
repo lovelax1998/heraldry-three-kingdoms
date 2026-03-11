@@ -120,6 +120,27 @@ public sealed class DialogueLineDefinition
     [JsonPropertyName("text")]
     public string Text { get; set; } = string.Empty;
 
+    [JsonPropertyName("dialog_type")]
+    public string DialogType { get; set; } = "box";
+
+    [JsonPropertyName("simultaneous")]
+    public bool Simultaneous { get; set; }
+
+    [JsonPropertyName("entries")]
+    public List<DialogueBubbleEntryDefinition> Entries { get; set; } = new();
+
+    [JsonPropertyName("bubble_width")]
+    public float? BubbleWidth { get; set; }
+
+    [JsonPropertyName("bubble_offset_x")]
+    public float? BubbleOffsetX { get; set; }
+
+    [JsonPropertyName("bubble_offset_y")]
+    public float? BubbleOffsetY { get; set; }
+
+    [JsonPropertyName("show_speaker_name")]
+    public bool? ShowSpeakerName { get; set; }
+
     [JsonPropertyName("auto_advance")]
     public bool AutoAdvance { get; set; }
 
@@ -131,6 +152,30 @@ public sealed class DialogueLineDefinition
 
     [JsonPropertyName("exit_actions")]
     public List<DialogueActorActionDefinition> ExitActions { get; set; } = new();
+}
+
+public sealed class DialogueBubbleEntryDefinition
+{
+    [JsonPropertyName("speaker")]
+    public string Speaker { get; set; } = string.Empty;
+
+    [JsonPropertyName("expression")]
+    public string Expression { get; set; } = "normal";
+
+    [JsonPropertyName("text")]
+    public string Text { get; set; } = string.Empty;
+
+    [JsonPropertyName("bubble_width")]
+    public float? BubbleWidth { get; set; }
+
+    [JsonPropertyName("bubble_offset_x")]
+    public float? BubbleOffsetX { get; set; }
+
+    [JsonPropertyName("bubble_offset_y")]
+    public float? BubbleOffsetY { get; set; }
+
+    [JsonPropertyName("show_speaker_name")]
+    public bool? ShowSpeakerName { get; set; }
 }
 
 public sealed class DialogueActorActionDefinition
@@ -209,4 +254,7 @@ public sealed class DialogueCharacterDefinition
 
     [JsonPropertyName("s_model_sheet")]
     public string SModelSheet { get; set; } = string.Empty;
+
+    [JsonPropertyName("s_model_sub_sheet")]
+    public string SModelSubSheet { get; set; } = string.Empty;
 }
